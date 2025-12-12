@@ -1,0 +1,36 @@
+name: Liverpool Scraper
+
+on:
+  schedule:
+    # 5:00 a.m. México (UTC-6) ≈ 11:00 UTC
+    - cron: "0 11 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  run-liverpool-scraper:
+    runs-on: ubuntu-latest
+
+    env:
+      TIME_BUDGET_SECONDS: "5400"
+      MAX_LOOPS: "3"
+      EMAIL_SENDER: ${{ secrets.LIVERPOOL_EMAIL_SENDER }}
+      EMAIL_PASSWORD: ${{ secrets.LIVERPOOL_EMAIL_PASSWORD }}
+      EMAIL_TO: ${{ secrets.LIVERPOOL_EMAIL_TO }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Liverpool scraper
+        run: |
+          python liverpool_scraper.py
